@@ -59,17 +59,29 @@ def date_command():
     log_action('Executed date command')
 
 def uptime_command():
-    # Для Windows можно использовать systeminfo, для UNIX uptime
-    if os.name == 'nt':
-        process = subprocess.Popen(['systeminfo'], stdout=subprocess.PIPE, text=True)
-        output = process.communicate()[0]
-        print(output)
-    else:
-        process = subprocess.Popen(['uptime'], stdout=subprocess.PIPE, text=True)
-        output = process.communicate()[0]
-        print(output)
+    try:
+        if os.name == 'nt':
+            process = subprocess.run(
+                ['powershell', '-Command', '(Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime'],
+                capture_output=True,
+                text=True
+            )
+            if process.returncode == 0:
+                boot_time = process.stdout.strip()
+                print(f"Last Boot Up Time: {boot_time}")
+            else:
+                print("Error executing command:", process.stderr.strip())
+        else:
+            process = subprocess.run(['uptime'], capture_output=True, text=True)
+            if process.returncode == 0:
+                print(process.stdout.strip())
+            else:
+                print("Error executing command:", process.stderr.strip())
 
-    log_action('Executed uptime command')
+        log_action('Executed uptime command')
+    except Exception as e:
+        print(f"Error executing command: {e}")
+
 
 # Основная функция
 def main():
