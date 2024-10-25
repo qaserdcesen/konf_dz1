@@ -7,32 +7,8 @@ import subprocess
 
 # Функция для загрузки конфигурационного файла
 def load_config():
-    print("Trying to load config.yaml...")
-
-    if not os.path.isfile('config.yaml'):
-        print("Config file does not exist.")
-        exit(1)
-
-    try:
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-            print(f"Loaded config: {config}")  # Печать загруженной конфигурации
-            
-            if config is None:
-                print("Config is None. Please check the content of config.yaml.")
-                exit(1)
-
-            if not isinstance(config, dict):
-                print("Loaded config is not a dictionary.")
-                exit(1)
-
-            return config
-    except FileNotFoundError:
-        print("Config file not found. Please make sure config.yaml exists.")
-        exit(1)
-    except yaml.YAMLError as exc:
-        print(f"Error parsing YAML: {exc}")
-        exit(1)
+    with open('config.yaml', 'r') as file:
+        return yaml.safe_load(file)
 
 # Функция для записи логов
 def log_action(action):
@@ -98,19 +74,8 @@ def uptime_command():
 # Основная функция
 def main():
     config = load_config()
-    
-    if config is None:
-        print("Failed to load configuration.")  # Отладочная печать
-        exit(1)
-
-    tar_path = config.get('virtual_filesystem_path')
-    log_path = config.get('log_file_path')
-
-    if not tar_path or not log_path:
-        print("Missing configuration values. Please check config.yaml.")
-        exit(1)
-
-    print(f"Tar path: {tar_path}, Log path: {log_path}")  # Отладочная печать
+    tar_path = config['virtual_filesystem_path']
+    log_path = config['log_file_path']
 
     extract_tar(tar_path)
 
